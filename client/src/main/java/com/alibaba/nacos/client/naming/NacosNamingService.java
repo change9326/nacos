@@ -85,11 +85,19 @@ public class NacosNamingService implements NamingService {
         InitUtils.initWebRootContext();
         initCacheDir();
         initLogName(properties);
-
+        // 初始化事件分发组件，用于处理服务端主动通知下来的变更数据
         eventDispatcher = new EventDispatcher();
+        // 初始化Nacos服务集群地址列表更新组件，用于客户端维护Nacos服务端的最新地址列表
         serverProxy = new NamingProxy(namespace, endpoint, serverList);
         serverProxy.setProperties(properties);
+        //初始化服务健康检查模块，主动给服务端上报服务的健康情况
         beatReactor = new BeatReactor(serverProxy, initClientBeatThreadCount(properties));
+        /**
+         * 客户端缓存容灾
+         * 1.初始化客户端的缓存，10s检查一次，如果没有，则创建
+         * 2.24小时备份一次客户端的缓存文件
+         * 3.5s检查一次容灾开关，更新到内存中，容灾模式情况下，服务地址读的都是缓存
+         */
         hostReactor = new HostReactor(eventDispatcher, serverProxy, cacheDir, isLoadCacheAtStart(properties), initPollingThreadCount(properties));
     }
 

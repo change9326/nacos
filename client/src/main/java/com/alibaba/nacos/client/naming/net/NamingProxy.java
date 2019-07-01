@@ -80,7 +80,7 @@ public class NamingProxy {
                 this.nacosDomain = serverList;
             }
         }
-
+        //启动了一个定时任务，每隔30s，去执行refreshSrvIfNeed()这个方法
         initRefreshSrvIfNeed();
     }
 
@@ -149,7 +149,7 @@ public class NamingProxy {
             if (System.currentTimeMillis() - lastSrvRefTime < vipSrvRefInterMillis) {
                 return;
             }
-
+            //通过一个http请求，去Nacos server获取一串Nacos server集群的地址列表
             List<String> list = getServerListFromEndpoint();
 
             if (CollectionUtils.isEmpty(list)) {
